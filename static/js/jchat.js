@@ -92,9 +92,12 @@ function get_messages() {
 			var $containter = $("#chat-messages-container");
 			if ($containter.scrollTop() == $containter.attr("scrollHeight") - $containter.height())
 				scroll = true;
-
+			
 			// add messages
 			$.each(json, function(i,m){
+				// filter message for bad bad stuff (XSS injections for instance)
+				m.message = clean_message(m.message);
+				// depending on the message type, present it in a different manner
 				if (m.type == 's')
 					$('#chat-messages').append('<div class="system">' + replace_emoticons(m.message) + '</div>');
 				else if (m.type == 'm') 	
@@ -170,4 +173,11 @@ function replace_emoticons(text) {
 		text = text.replace(re, '<img src="'+img_dir+img+'" />');
 	});
 	return text;
+}
+
+/**
+ * Clean unwanted characters from message string to prevent code injection
+ */ 
+function clean_message(text) {
+	return text.replace(/</g,"&lt;").replace(/>/g,"&gt;")
 }
